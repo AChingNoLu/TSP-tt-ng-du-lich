@@ -1,56 +1,78 @@
-# TSP — Genetic Algorithm Project
+# TSP Solver - Genetic Algorithm, Greedy, Simulated Annealing
 
-Giải bài toán Người du lịch (TSP) bằng Thuật toán Di truyền (GA), so sánh với Greedy và Simulated Annealing.
+Dự án này giải quyết bài toán Người du lịch (Traveling Salesman Problem - TSP) bằng cách so sánh ba phương pháp:
 
-**Đề số 9 — Môn: Thuật toán & Ứng dụng**
+- Genetic Algorithm (GA)
+- Greedy / Nearest Neighbor
+- Simulated Annealing (SA)
 
----
+Mục tiêu là tìm đường đi có chi phí thấp nhất, đồng thời đánh giá hiệu quả của từng thuật toán trên dữ liệu ngẫu nhiên và dữ liệu chuẩn `berlin52.tsp`.
 
-## Cấu trúc dự án
+## Mục tiêu của dự án
 
-```
-tsp_ga/
-├── src/
-│   ├── tsp_core.py           # Dữ liệu thành phố, TSPLIB parser, tính khoảng cách
-│   ├── genetic_algorithm.py  # GA hoàn chỉnh (OX, PMX, CX crossover)
-│   ├── greedy.py             # Thuật toán Greedy Nearest Neighbor
-│   ├── simulated_annealing.py# Thuật toán Simulated Annealing
-│   └── utils.py              # Vẽ đồ thị, xuất bảng CSV
+- Giải bài toán TSP trên tập dữ liệu khác nhau
+- So sánh chất lượng lời giải giữa các thuật toán
+- Phân tích sự hội tụ và độ ổn định của Genetic Algorithm
+- Vẽ các biểu đồ kết quả và lưu ra thư mục `results/`
+
+## Cấu trúc thư mục
+
+```text
+TSP-main/
 ├── data/
-│   └── berlin52.tsp          # Bộ dữ liệu TSPLIB chuẩn (optimal = 7542)
-├── results/                  # Đồ thị PNG + bảng CSV (tự sinh khi chạy)
-├── main.py                   # Runner chính — chạy toàn bộ thí nghiệm
-├── requirements.txt
-└── README.md
+│   └── berlin52.tsp
+├── results/
+│   └── (nhiều file hình ảnh và CSV sau khi chạy)
+├── src/
+│   ├── __init__.py
+│   ├── genetic_algorithm.py
+│   ├── greedy.py
+│   ├── simulated_annealing.py
+│   ├── tsp_core.py
+│   └── utils.py
+├── main.py
+├── quick_run.py
+├── .gitignore
+├── README.md
+└── .
 ```
 
----
+## Yêu cầu hệ thống
+
+- Python 3.9+
+- Pip
 
 ## Cài đặt
 
-### Yêu cầu
-- Python 3.9+
-- Các thư viện: `numpy`, `matplotlib`, `pandas`, `tqdm`
+### 1. Tạo môi trường ảo (khuyến nghị)
 
-### Bước 1 — Tạo môi trường ảo (khuyến nghị)
+Windows:
 
 ```bash
 python -m venv venv
-# Windows:
 venv\Scripts\activate
-# Linux/Mac:
+```
+
+Linux / macOS:
+
+```bash
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Bước 2 — Cài thư viện
+### 2. Cài đặt thư viện cần thiết
+
+```bash
+pip install numpy pandas matplotlib tqdm
+```
+
+Nếu dự án có thêm file `requirements.txt` sau này, bạn có thể dùng:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## Cách chạy
+## Chạy dự án
 
 ### Chạy toàn bộ thí nghiệm
 
@@ -58,102 +80,106 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Kết quả sẽ được lưu vào thư mục `results/`:
-- `exp1_convergence_ga.png` — đường hội tụ GA
-- `exp1_tour_comparison.png` — so sánh tour 3 thuật toán
-- `exp1_bar_comparison.png` — biểu đồ cột độ dài tour
-- `exp2_crossover_convergence.png` — hội tụ OX vs PMX vs CX
-- `exp2_crossover_comparison.csv` — bảng so sánh crossover
-- `exp3_scalability_length.png` — scalability theo N
-- `exp3_scalability_time.png` — thời gian chạy theo N
-- `exp4_berlin52_convergence.png` — convergence trên berlin52
-- `exp4_berlin52_tours.png` — tour trên berlin52
+File `main.py` sẽ:
 
-### Chạy riêng từng module
+- tạo bài toán TSP ngẫu nhiên
+- chạy Greedy, Simulated Annealing và GA
+- so sánh hiệu năng giữa các thuật toán
+- vẽ các đồ thị và lưu kết quả vào `results/`
+
+### Chạy nhanh / demo nhanh
+
+```bash
+python quick_run.py
+```
+
+File này là phiên bản rút gọn, phù hợp để kiểm tra nhanh từng thí nghiệm mà không cần chạy toàn bộ pipeline phức tạp.
+
+## Các thuật toán trong dự án
+
+### 1. Genetic Algorithm (GA)
+
+Thuật toán di truyền dựa trên khái niệm tiến hóa quần thể:
+
+- mã hóa nghiệm dưới dạng hoán vị
+- chọn lọc theo độ thích nghi
+- lai ghép với các kiểu crossover như OX, PMX, CX
+- đột biến bằng cách hoán đổi vị trí
+- giữ elitism để không mất nghiệm tốt
+
+Các kiểu crossover có sẵn:
+
+- OX (Order Crossover)
+- PMX (Partially Mapped Crossover)
+- CX (Cycle Crossover)
+
+### 2. Greedy Algorithm
+
+Phương pháp đơn giản, chọn thành phố gần nhất ở mỗi bước:
+
+- nhanh
+- dễ triển khai
+- thường cho lời giải tốt nhưng không tối ưu tuyệt đối
+
+### 3. Simulated Annealing
+
+Thuật toán mô phỏng quá trình làm nguội vật liệu:
+
+- bắt đầu với một lời giải bất kỳ
+- cho phép “đổi xấu” theo xác suất để tránh rơi vào cực tiểu cục bộ
+- giảm nhiệt độ theo thời gian để hội tụ về nghiệm tốt hơn
+
+## Dữ liệu đầu vào
+
+Dự án hỗ trợ hai loại dữ liệu:
+
+1. Dữ liệu ngẫu nhiên
+   - sinh ngẫu nhiên số lượng thành phố theo yêu cầu
+   - hữu ích để kiểm tra tốc độ và hiệu năng
+
+2. Dữ liệu TSPLIB
+   - file `data/berlin52.tsp`
+   - là tập dữ liệu chuẩn cho bài toán TSP
+   - giá trị tối ưu tham chiếu là khoảng 7542
+
+## Kết quả đầu ra
+
+Khi chạy xong, các file dưới đây sẽ được tạo trong thư mục `results/`:
+
+- `exp1_convergence_ga.png`
+- `exp1_tour_comparison.png`
+- `exp1_bar_comparison.png`
+- `exp2_crossover_convergence.png`
+- `exp2_crossover_comparison.csv`
+- `exp3_scalability_length.png`
+- `exp3_scalability_time.png`
+- `exp4_berlin52...` (nếu có thực thi mô phỏng trên file dữ liệu chuẩn)
+
+## Ví dụ dùng API
 
 ```python
 from src.tsp_core import generate_random_instance
 from src.genetic_algorithm import run_ga
-from src.greedy import greedy_tsp
-from src.simulated_annealing import run_sa
 
-# Sinh bài toán 30 thành phố
 instance = generate_random_instance(n=30, seed=42)
+result = run_ga(instance, crossover_type="OX", seed=42, n_generations=200, verbose=True)
 
-# Chạy GA với OX crossover
-result = run_ga(instance, crossover_type="OX", n_generations=300, verbose=True)
-print(f"Best tour length: {result['best_length']:.2f}")
+print(f"Best length: {result['best_length']:.2f}")
 print(f"Time: {result['time_sec']:.4f}s")
 ```
 
----
+## Ghi chú
 
-## Thuật toán
+- Kết quả số liệu thực tế có thể thay đổi theo máy và seed
+- Đối với dữ liệu lớn, Genetic Algorithm và Simulated Annealing sẽ tốn thời gian hơn so với Greedy
+- Dự án được thiết kế để phục vụ mục đích nghiên cứu, demo và học tập
 
-### 1. Genetic Algorithm (GA)
+## Tài liệu tham khảo
 
-| Thành phần | Lựa chọn |
-|---|---|
-| Biểu diễn | Hoán vị (permutation encoding) |
-| Chọn lọc | Tournament Selection (k=5) |
-| Lai ghép | OX / PMX / CX |
-| Đột biến | Swap Mutation |
-| Chiến lược | Elitism (giữ top-5 mỗi thế hệ) |
+- Goldberg, David E. - Genetic Algorithms in Search, Optimization, and Machine Learning
+- Kirkpatrick et al. - Optimization by Simulated Annealing
+- TSPLIB benchmark dataset
 
-**Tham số mặc định:**
+## License
 
-| Tham số | Giá trị |
-|---|---|
-| Population size | 150 |
-| Số thế hệ | 500 |
-| Crossover rate | 0.85 |
-| Mutation rate | 0.02 |
-| Tournament k | 5 |
-| Elitism size | 5 |
-
-**Crossover operators:**
-
-- **OX (Order Crossover)**: Giữ đoạn con từ parent 1, điền phần còn lại theo thứ tự parent 2.
-- **PMX (Partially Mapped Crossover)**: Ánh xạ 2 chiều giữa 2 đoạn con.
-- **CX (Cycle Crossover)**: Xác định chu trình, gán xen kẽ từ 2 cha mẹ.
-
-### 2. Greedy (Nearest Neighbor)
-
-Bắt đầu từ thành phố xuất phát, luôn di chuyển đến thành phố chưa thăm gần nhất. Độ phức tạp O(n²).
-
-### 3. Simulated Annealing (SA)
-
-| Tham số | Giá trị |
-|---|---|
-| Nhiệt độ ban đầu T₀ | 10000 |
-| Hệ số làm nguội α | 0.995 |
-| Nhiệt độ tối thiểu | 1e-8 |
-| Neighbor | Swap 2 thành phố |
-
----
-
-## Kết quả mẫu (N=30, seed=42)
-
-| Thuật toán | Tour Length | Thời gian (s) |
-|---|---|---|
-| Greedy | ~5800 | < 0.001 |
-| Simulated Annealing | ~4200 | ~2.0 |
-| GA-OX | ~4100 | ~8.0 |
-
-*(Kết quả thực tế có thể khác nhau tùy máy)*
-
----
-
-## Dữ liệu
-
-- **Ngẫu nhiên**: Tọa độ sinh trong không gian [0, 1000] × [0, 1000]
-- **TSPLIB berlin52**: 52 địa điểm tại Berlin, lời giải tối ưu đã biết = **7542**
-
----
-
-## Tham khảo
-
-1. Goldberg, D.E. (1989). *Genetic Algorithms in Search, Optimization and Machine Learning*.
-2. Davis, L. (1985). Applying Adaptive Algorithms to Epistatic Domains. IJCAI.
-3. Kirkpatrick, S., Gelatt, C.D., Vecchi, M.P. (1983). Optimization by Simulated Annealing. *Science*.
-4. TSPLIB: http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/
+Dự án này được cung cấp miễn phí cho mục đích học tập và nghiên cứu.
