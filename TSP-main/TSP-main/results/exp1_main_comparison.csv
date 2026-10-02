@@ -1,0 +1,4 @@
+﻿Thuật toán,N thành phố,Tour tốt nhất,Tour TB,Std,Thời gian (s)
+Greedy (Nearest Neighbor),30,5888.39,5888.39,0.00,0.0006
+Simulated Annealing,30,4620.21,4620.21,0.00,20.9133
+GA-OX,30,5397.23,5397.23,0.00,2.4004
